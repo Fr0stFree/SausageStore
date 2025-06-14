@@ -13,6 +13,7 @@ metadata:
     app.kubernetes.io/component: {{ .Chart.Name }}
     app.kubernetes.io/part-of: {{ .Release.Name }}
 spec:
+  serviceName: {{ .Release.Name }}-postgres-service
   replicas: {{ .Values.postgres.replicas }}
   selector:
     matchLabels:
