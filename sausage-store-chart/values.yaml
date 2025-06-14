@@ -5,9 +5,7 @@ global:
   ###  name: vault
   ###  vaultToken: someToken
 
-
 frontend:
-### В чарте frontend отсутствуют некоторые важные файлы. Поймите какие и опишите их.
   replicas: 1
   revisionHistoryLimit: 15
   strategy:
@@ -15,11 +13,13 @@ frontend:
   service:
     port: 80
   ingress:
-    host: YOUR_STUDENT_HOSTNAME.students-projects.ru # Корректный домен будет указан в задании
+    # host: YOUR_STUDENT_HOSTNAME.students-projects.ru # Корректный домен будет указан в задании
+    host: sausage.local
     path: /
     pathType: Prefix
+    tlsEnabled: false  # TODO: enable in future
   containerPort: 80
-  image: YOUR_DOCKERHUB/sausage-frontend:latest
+  image: frostfree/sausage-frontend:latest
   resources:
     requests:
       memory: "128Mi"
@@ -35,7 +35,7 @@ backend:
     port: "8080"
     scrape: "true"
   env:
-    postgresUri: jdbc:postgresql://postgresql:5432/sausage-store
+    postgresUri: jdbc:postgresql://sausage-store-postgres-service:5432/sausage-store
     postgresUser: store
     postgresPassword: storepassword
     reportPath: /logs/reports
@@ -45,8 +45,11 @@ backend:
   revisionHistoryLimit: 15
   replicas: 1
   strategy:
-  ### Опишите стратегию RollingUpdate для бэкенда
-  image: YOUR_DOCKERHUB/sausage-backend:latest
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  image: frostfree/sausage-backend:latest
   imagePullPolicy: Always
   resources:
     requests:
@@ -69,8 +72,24 @@ backend-report:
 ### Опишите HPA для backend-report
 
 infra:
-  postgresql:
-  ### Опишите необходимые переменные для развертывания PostgresQL в кластере Kubernetes
+  postgres:
+    image: postgres:15-alpine
+    dbName: sausage-store
+    dbUser: store
+    dbPassword: storepassword
+    containerPort: 5432
+    replicas: 1
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "1"
+    storage:
+      size: 1Gi
+      className: standard
+
   mongodb:
     env:
       MONGO_INITDB_ROOT_USERNAME: root

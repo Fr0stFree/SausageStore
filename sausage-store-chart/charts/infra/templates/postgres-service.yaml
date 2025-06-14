@@ -17,6 +17,6 @@ spec:
   ports:
     - name: postgres
       port: {{ .Values.postgres.containerPort }}
+      protocol: TCP
   selector:
     app: {{ .Release.Name }}-postgres
-    type: ClusterIP
