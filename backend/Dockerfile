@@ -1,5 +1,5 @@
 # Stage 1: Build the Java application using Maven
-FROM maven:3.8.2-openjdk-16-slim AS builder
+FROM maven:3.9-amazoncorretto-17 AS builder
 
 ARG VERSION=${VERSION}
 
@@ -12,7 +12,7 @@ COPY *.xml ./
 RUN mvn package -Dversion.application=${VERSION}
 
 # Stage 2: Create a minimal image to run the Java application
-FROM openjdk:16-jdk
+FROM amazoncorretto:17-alpine
 
 ARG VERSION=${VERSION}
 
@@ -20,7 +20,7 @@ WORKDIR /app
 
 RUN addgroup --system jaruser \
     && adduser -S -s /bin/false -G jaruser jaruser -D -H \
-    && apk add --no-cache dumb-init==1.2.5-r0 \
+    && apk add --no-cache dumb-init \
     && apk add --update curl \
     && rm -rf /var/cache/apk/* \
     && mkdir -p /logs/reports \
