@@ -14,9 +14,10 @@ RUN npm run build
 # Stage 2: Serve the application with Nginx
 FROM nginx:1.27.5-alpine
 
-COPY --from=builder /app/dist/frontend/ /usr/share/nginx/html
+# TODO: what is this for?
+# COPY nginx.tmpl /etc/nginx/templates/default.conf.template
 
-COPY nginx.tmpl /etc/nginx/templates/default.conf.template
+COPY --from=builder /app/dist/frontend/ /usr/share/nginx/html
 
 EXPOSE 80
 
