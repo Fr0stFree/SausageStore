@@ -15,8 +15,7 @@ metadata:
 spec:
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   replicas: {{ .Values.replicas }}
-  strategy:
-{{ toYaml .Values.strategy | indent 4 }} 
+  strategy: {{ toYaml .Values.strategy | nindent 4 }} 
   selector:
     matchLabels:
       app: {{ .Release.Name }}-{{ .Chart.Name }}
@@ -59,13 +58,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
                   key: log_path
-          resources:
-{{ toYaml .Values.resources | indent 12 }} 
+          resources: {{ toYaml .Values.resources | nindent 12 }} 
           ports:
             - name: {{ .Chart.Name }}
               containerPort: {{ .Values.containerPort }}
-          livenessProbe:
-{{ toYaml .Values.livenessProbe | indent 12 }} 
+          livenessProbe: {{ toYaml .Values.livenessProbe | nindent 12 }} 
       volumes:
       - name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
         configMap:
@@ -81,17 +78,5 @@ spec:
               path: report_path
             - key: log_path
               path: log_path
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: {{ .Release.Name }}-{{ .Chart.Name }}
-  updatePolicy:
-{{ toYaml .Values.vpa.updatePolicy | indent 4 }} 
-  resourcePolicy:
-{{ toYaml .Values.vpa.resourcePolicy | indent 4 }} 
+
+# TODO: add vpa
