@@ -58,10 +58,30 @@ jobs:
       runs-on: ubuntu-latest
       needs: build_and_push_to_docker_hub
 
-      # TODO: Добавить шаги для создания helm-чарта и его загрузки в Nexus
       steps:
-        - name: Dummy Step
-          run: echo "This is a placeholder for the Helm chart creation and upload steps."
+        - name: Check out the repo
+          uses: actions/checkout@v3
+
+        - name: Set up Helm
+          uses: azure/setup-helm@v1
+          with:
+            version: '3.7.0'
+
+        - name: Create Helm Chart
+          run: |
+            helm dependency update sausage-store-chart
+            helm package sausage-store-chart
+
+        - name: Upload Helm Chart to Nexus
+          run: |
+            helm plugin install helm-push || true
+            helm repo add nexus ${{ env.NEXUS_HELM_REPO }} \
+              --username ${{ env.NEXUS_HELM_REPO_USER }} \
+              --password ${{ env.NEXUS_HELM_REPO_PASSWORD }}
+            helm cm-push sausage-store-chart-*.tgz nexus \
+              --context-path /repository/frostfree-sausage-store
+              --username ${{ env.NEXUS_HELM_REPO_USER }} \
+              --password ${{ env.NEXUS_HELM_REPO_PASSWORD }}
 
   deploy_helm_chart_to_kubernetes:
       name: Deploy Helm Chart To Kubernetes
