@@ -58,8 +58,14 @@ backend:
       memory: "512Mi"
       cpu: "1"
   containerPort: 8080
-  # TODO: Опишите LivenessProbe для бэкенда
-  # livenessProbe:
+  livenessProbe:
+    httpGet:
+      path: /actuator/health
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
   # TODO: Опишите VPA для бэкенда
   vpa:
     enabled: false
@@ -85,9 +91,14 @@ backend-report:
     dbUri: mongodb://store:storepassword@sausage-store-mongodb-service:27017/sausage-store
   hpa:
     enabled: false
-  # TODO: Опишите LivenessProbe для бэкенда-репорта
-  # livenessProbe:
-
+  livenessProbe:
+    httpGet:
+      path: /api/v1/health
+      port: 8081
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
 
 infra:
   postgres:

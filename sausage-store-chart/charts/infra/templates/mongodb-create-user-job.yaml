@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Release.Name }}-mongodb-create-db-job
+  name: {{ .Release.Name }}-mongodb-create-user-job
   namespace: {{ .Release.Namespace }}
   labels: {{- include "mongodb.labels" . | nindent 4 }}
 spec:
   template:
     metadata:
-      name: {{ .Release.Name }}-mongodb-create-db-job
+      name: {{ .Release.Name }}-mongodb-create-user-job
       namespace: {{ .Release.Namespace }}
     annotations:
       helm.sh/hook: "post-install"    
@@ -15,7 +15,7 @@ spec:
     spec:
       restartPolicy: OnFailure
       containers:
-        - name: mongodb-create-db
+        - name: mongodb-create-user
           image: {{ .Values.mongodb.image }}
           imagePullPolicy: IfNotPresent
           command:
@@ -33,11 +33,14 @@ spec:
             - --eval
             - |
               db = db.getSiblingDB('{{ .Values.mongodb.env.dbName }}');
-              db.createUser({
-                user: '{{ .Values.mongodb.env.dbUser }}',
-                pwd: '{{ .Values.mongodb.env.dbPassword }}',
-                roles: [
-                  { role: 'readWrite', db: '{{ .Values.mongodb.env.dbName }}' }
-                ]
-              });
+              if (db.getUser('{{ .Values.mongodb.env.dbUser }}') == null) {
+                db.createUser({
+                  user: '{{ .Values.mongodb.env.dbUser }}',
+                  pwd: '{{ .Values.mongodb.env.dbPassword }}',
+                  roles: [{ role: 'readWrite', db: '{{ .Values.mongodb.env.dbName }}' }]
+                });
+                print('User {{ .Values.mongodb.env.dbUser }} created.');
+              } else {
+                print('User {{ .Values.mongodb.env.dbUser }} already exists, skipping.');
+              }
       restartPolicy: OnFailure 
