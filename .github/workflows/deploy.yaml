@@ -78,7 +78,7 @@ jobs:
             helm repo add nexus ${{ env.NEXUS_HELM_REPO }} \
               --username ${{ env.NEXUS_HELM_REPO_USER }} \
               --password ${{ env.NEXUS_HELM_REPO_PASSWORD }}
-            helm cm-push sausage-store-chart-*.tgz nexus \
+            helm cm-push sausage-store-*.tgz nexus \
               --context-path /repository/frostfree-sausage-store
               --username ${{ env.NEXUS_HELM_REPO_USER }} \
               --password ${{ env.NEXUS_HELM_REPO_PASSWORD }}
