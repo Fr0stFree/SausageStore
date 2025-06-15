@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "backend-report.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  replicas: {{ .Values.replicas }}
+  strategy: {{ toYaml .Values.strategy | nindent 4 }} 
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-{{ .Chart.Name }}
+        {{- include "backend-report.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.image }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
+            - secretRef:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-secret
+          resources: {{ toYaml .Values.resources | nindent 12 }} 
+          ports:
+            - name: {{ .Chart.Name }}
+              containerPort: {{ .Values.containerPort }}
+          livenessProbe: {{ toYaml .Values.livenessProbe | nindent 12 }}

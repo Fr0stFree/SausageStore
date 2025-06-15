@@ -58,18 +58,13 @@ backend:
       memory: "512Mi"
       cpu: "1"
   containerPort: 8080
-  livenessProbe:
-  ### Опишите LivenessProbe для бэкенда
+  # TODO: Опишите LivenessProbe для бэкенда
+  # livenessProbe:
+  # TODO: Опишите VPA для бэкенда
   vpa:
-  ### Опишите VPA для бэкенда
     enabled: false
 
 backend-report:
-### Опишите значения для backend-report
-### Приложение должно использовать стратегию Recreate
-### Приложение использует переменную PORT - порт, на котором оно запустится и DB - Uri-подключение к mongodb. 
-### DB положите в Secret, PORT в ConfigMap
-### Опишите HPA для backend-report
   replicas: 1
   resources:
     requests:
@@ -78,23 +73,29 @@ backend-report:
     limits:
       memory: "256Mi"
       cpu: "1"
-  image: frostfree/sausage-report:latest
+  image: frostfree/sausage-backend-report:latest
+  service:
+    port: 8081
   imagePullPolicy: Always
   containerPort: 8081
   revisionHistoryLimit: 15
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
-  
+    type: Recreate
+  env:
+    dbUri: mongodb://store:storepassword@sausage-store-mongodb-service:27017/sausage-store
+  hpa:
+    enabled: false
+  # TODO: Опишите LivenessProbe для бэкенда-репорта
+  # livenessProbe:
+
 
 infra:
   postgres:
     image: postgres:15-alpine
-    dbName: sausage-store
-    dbUser: store
-    dbPassword: storepassword
+    env:
+      dbName: sausage-store
+      dbUser: store
+      dbPassword: storepassword
     containerPort: 5432
     replicas: 1
     resources:
@@ -122,6 +123,11 @@ infra:
         memory: "256Mi"
         cpu: "1"
     env:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      dbHost: sausage-store-mongodb-service
+      dbPort: 27017
+      dbName: sausage-store
+      dbUser: store
+      dbPassword: storepassword
+      dbRootUsername: root
+      dbRootPassword: rootpassword
     containerPort: 27017

@@ -6,5 +6,5 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels: {{- include "mongodb.labels" . | nindent 4 }}
 data:
-  MONGO_INITDB_ROOT_USERNAME: {{ .Values.mongodb.env.MONGO_INITDB_ROOT_USERNAME }}
-  MONGO_INITDB_ROOT_PASSWORD: {{ .Values.mongodb.env.MONGO_INITDB_ROOT_PASSWORD }}
+  MONGO_INITDB_ROOT_USERNAME: {{ .Values.mongodb.env.dbRootUsername | quote }}
+  MONGO_INITDB_ROOT_PASSWORD: {{ .Values.mongodb.env.dbRootPassword | quote }}

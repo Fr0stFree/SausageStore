@@ -1,0 +1,11 @@
+---
+{{ if .Values.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-hpa
+  namespace: {{ .Release.Namespace }}
+  labels: {{ include "backend-report.labels" . | nindent 4 }}
+spec:
+# TODO: complete
+{{- end }}

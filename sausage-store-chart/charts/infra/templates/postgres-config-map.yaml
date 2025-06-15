@@ -6,5 +6,5 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels: {{- include "postgres.labels" . | nindent 4 }}
 data:
-  POSTGRES_DB: {{ .Values.postgres.dbName | quote }}
+  POSTGRES_DB: {{ .Values.postgres.env.dbName | quote }}
   POSTGRES_PORT: {{ .Values.postgres.containerPort | quote }}

@@ -20,6 +20,7 @@ spec:
         prometheus.io/scrape: "{{ .Values.annotations.scrape }}"
       labels:
         app: {{ .Release.Name }}-{{ .Chart.Name }}
+        {{- include "backend.labels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
@@ -57,9 +58,9 @@ spec:
               containerPort: {{ .Values.containerPort }}
           livenessProbe: {{ toYaml .Values.livenessProbe | nindent 12 }} 
       volumes:
-      - name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+      - name: {{ .Release.Name }}-{{ .Chart.Name }}-config-volume
         configMap:
-          name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
           items:
             - key: postgres_uri
               path: postgres_uri
@@ -71,5 +72,3 @@ spec:
               path: report_path
             - key: log_path
               path: log_path
-
-# TODO: add vpa

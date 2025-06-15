@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-mongodb-create-db-job
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "mongodb.labels" . | nindent 4 }}
+spec:
+  template:
+    metadata:
+      name: {{ .Release.Name }}-mongodb-create-db-job
+      namespace: {{ .Release.Namespace }}
+    annotations:
+      helm.sh/hook: "post-install"    
+      helm.sh/hook-weight: "5" 
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mongodb-create-db
+          image: {{ .Values.mongodb.image }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - mongosh
+            - --host
+            - {{ .Values.mongodb.env.dbHost | quote }}
+            - --port
+            - {{ .Values.mongodb.env.dbPort | quote }}
+            - -u
+            - {{ .Values.mongodb.env.dbRootUsername | quote }}
+            - -p
+            - {{ .Values.mongodb.env.dbRootPassword | quote }}
+            - --authenticationDatabase
+            - admin
+            - --eval
+            - |
+              db = db.getSiblingDB('{{ .Values.mongodb.env.dbName }}');
+              db.createUser({
+                user: '{{ .Values.mongodb.env.dbUser }}',
+                pwd: '{{ .Values.mongodb.env.dbPassword }}',
+                roles: [
+                  { role: 'readWrite', db: '{{ .Values.mongodb.env.dbName }}' }
+                ]
+              });
+      restartPolicy: OnFailure 
