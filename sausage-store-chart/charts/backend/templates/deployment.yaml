@@ -56,19 +56,20 @@ spec:
           ports:
             - name: {{ .Chart.Name }}
               containerPort: {{ .Values.containerPort }}
-          livenessProbe: {{ toYaml .Values.livenessProbe | nindent 12 }} 
+          livenessProbe: {{ toYaml .Values.livenessProbe | nindent 12 }}
+
       volumes:
-      - name: {{ .Release.Name }}-{{ .Chart.Name }}-config-volume
-        configMap:
-          name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
-          items:
-            - key: postgres_uri
-              path: postgres_uri
-            - key: postgres_user
-              path: postgres_user
-            - key: postgres_password
-              path: postgres_password
-            - key: report_path
-              path: report_path
-            - key: log_path
-              path: log_path
+        - name: {{ .Release.Name }}-{{ .Chart.Name }}-config-volume
+          configMap:
+            name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
+            items:
+              - key: postgres_uri
+                path: postgres_uri
+              - key: postgres_user
+                path: postgres_user
+              - key: postgres_password
+                path: postgres_password
+              - key: report_path
+                path: report_path
+              - key: log_path
+                path: log_path

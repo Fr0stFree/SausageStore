@@ -43,7 +43,7 @@ backend:
   service:
     port: 8080
   revisionHistoryLimit: 15
-  replicas: 0  # TODO: change to 1
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -58,14 +58,15 @@ backend:
       memory: "512Mi"
       cpu: "1"
   containerPort: 8080
+  # TODO: uncomment livenessProbe when backend is ready
   livenessProbe:
-    httpGet:
-      path: /actuator/health
-      port: 8080
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
+    # httpGet:
+    #   path: /actuator/health
+    #   port: 8080
+    # initialDelaySeconds: 30
+    # periodSeconds: 10
+    # timeoutSeconds: 5
+    # failureThreshold: 3
   # TODO: Опишите VPA для бэкенда
   vpa:
     enabled: false

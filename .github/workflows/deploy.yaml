@@ -14,69 +14,61 @@ env:
   VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
 
 jobs:
-  # Сборка и пуш образов в докерхаб:
   build_and_push_to_docker_hub:
       name: Push Docker image to DockerHub
       runs-on: ubuntu-latest
       steps:
         - name: Check out the repo
-          # Получение исходного кода из репозитория:
           uses: actions/checkout@v3
+
         - name: Set up Docker Buildx
-          # Установка сборщика контейнеров Docker:
           uses: docker/setup-buildx-action@v2
+
         - name: Login to Docker 
-          # Авторизация на Docker Hub:
           uses: docker/login-action@v2
-          # При помощи with передаём в action параметры username и password:
           with:
             username: ${{ secrets.DOCKER_USER }}
             password: ${{ secrets.DOCKER_PASSWORD }}
-            # Хорошо ли держать логин и пароль прямо в коде workflow?
-            # Нет, это нехорошо. Хранить пароль надо в Secrets.
+
         - name: Push Backend to DockerHub
-          # Одновременный билд и пуш образа в Docker Hub:
           uses: docker/build-push-action@v4
           with:
-            # Параметр context: ./backend/ указывает, что нужный Dockerfile 
-            # находится в ./backend/
             context: ./backend/
-            # Параметр push: true указывает, что образ нужно не только собрать,
-            # но и отправить на Docker Hub:
             push: true
-            # В параметре tags задаётся название и тег для образа.
-            # Для каждого пересобранного образа 
-            # устанавливаем тег latest, чтобы потом
-            # на сервере и в docker-compose.yml не указывать версию образа:
-            tags: YOUR_DOCKERHUB/sausage-backend:latest
+            tags: ${{ secrets.DOCKER_USER }}/sausage-backend:latest
             build-args: |
               VERSION=${{ github.sha }}
+
         - name: Push Frontend to DockerHub
           uses: docker/build-push-action@v4
           with:
             context: ./frontend/
             push: true
-            tags: YOUR_DOCKERHUB/sausage-frontend:latest
+            tags: ${{ secrets.DOCKER_USER }}/sausage-frontend:latest
+
         - name: Push Backend-report to DockerHub
           uses: docker/build-push-action@v4
           with:
             context: ./backend-report/
             push: true
-            tags: YOUR_DOCKERHUB/sausage-backend-report:latest
-  # Упаковываем helm-чарт и пушим его в Nexus
+            tags: ${{ secrets.DOCKER_USER }}/sausage-backend-report:latest
+
   add_helm_chart_to_nexus:
       name: Add Helm Chart To Nexus
       runs-on: ubuntu-latest
       needs: build_and_push_to_docker_hub
 
+      # TODO: Добавить шаги для создания helm-чарта и его загрузки в Nexus
       steps:
-      #### Опишите необходимые шаги
+        - name: Dummy Step
+          run: echo "This is a placeholder for the Helm chart creation and upload steps."
 
-  # Деплоим приложения в кластер Kubernetes с помощью helm-чарт
   deploy_helm_chart_to_kubernetes:
       name: Deploy Helm Chart To Kubernetes
       runs-on: ubuntu-latest
       needs: add_helm_chart_to_nexus
 
+      # TODO: Добавить шаги для деплоя helm-чарта в кластер Kubernetes
       steps:
-      #### Опишите необходимые шаги
+        - name: Dummy Step
+          run: echo "This is a placeholder for the Helm chart deployment steps."
