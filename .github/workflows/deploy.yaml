@@ -75,13 +75,8 @@ jobs:
         - name: Upload Helm Chart to Nexus
           run: |
             helm plugin install https://github.com/chartmuseum/helm-push
-            helm repo add nexus ${{ env.NEXUS_HELM_REPO }} \
-              --username ${{ env.NEXUS_HELM_REPO_USER }} \
-              --password ${{ env.NEXUS_HELM_REPO_PASSWORD }}
-            helm cm-push sausage-store-*.tgz nexus \
-              --context-path /repository/frostfree-sausage-store
-              --username ${{ env.NEXUS_HELM_REPO_USER }} \
-              --password ${{ env.NEXUS_HELM_REPO_PASSWORD }}
+            helm repo add nexus ${{ env.NEXUS_HELM_REPO }}
+            helm cm-push sausage-store-*.tgz nexus --context-path /repository/frostfree-sausage-store 
 
   deploy_helm_chart_to_kubernetes:
       name: Deploy Helm Chart To Kubernetes
