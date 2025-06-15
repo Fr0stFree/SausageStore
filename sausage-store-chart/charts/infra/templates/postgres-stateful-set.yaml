@@ -4,14 +4,7 @@ kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-postgres
   namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: postgres
-    app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app.kubernetes.io/component: {{ .Chart.Name }}
-    app.kubernetes.io/part-of: {{ .Release.Name }}
+  labels: {{- include "postgres.labels" . | nindent 4 }}
 spec:
   serviceName: {{ .Release.Name }}-postgres-service
   replicas: {{ .Values.postgres.replicas }}
@@ -34,13 +27,7 @@ spec:
                 name: {{ .Release.Name }}-postgres-secret
             - configMapRef:
                 name: {{ .Release.Name }}-postgres-config-map
-          resources:
-            requests:
-              memory: {{ .Values.postgres.resources.requests.memory }}
-              cpu: {{ .Values.postgres.resources.requests.cpu }}
-            limits:
-              memory: {{ .Values.postgres.resources.limits.memory }}
-              cpu: {{ .Values.postgres.resources.limits.cpu }}
+          resources: {{ toYaml .Values.postgres.resources | nindent 12 }}
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data

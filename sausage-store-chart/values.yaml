@@ -43,14 +43,13 @@ backend:
   service:
     port: 8080
   revisionHistoryLimit: 15
-  replicas: 1
+  replicas: 0  # TODO: change to 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
   image: frostfree/sausage-backend:latest
-  imagePullPolicy: Always
   resources:
     requests:
       memory: "256Mi"
@@ -71,6 +70,24 @@ backend-report:
 ### Приложение использует переменную PORT - порт, на котором оно запустится и DB - Uri-подключение к mongodb. 
 ### DB положите в Secret, PORT в ConfigMap
 ### Опишите HPA для backend-report
+  replicas: 1
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "1"
+  image: frostfree/sausage-report:latest
+  imagePullPolicy: Always
+  containerPort: 8081
+  revisionHistoryLimit: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
 
 infra:
   postgres:

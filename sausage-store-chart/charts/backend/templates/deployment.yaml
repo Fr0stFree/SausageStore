@@ -4,14 +4,7 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}
   namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: {{ .Chart.Name }}
-    app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app.kubernetes.io/component: {{ .Chart.Name }}
-    app.kubernetes.io/part-of: {{ .Release.Name }}
+  labels: {{- include "backend.labels" . | nindent 4 }}
 spec:
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   replicas: {{ .Values.replicas }}
@@ -36,27 +29,27 @@ spec:
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
                   key: postgres_uri
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
                   key: postgres_user
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
                   key: postgres_password
             - name: REPORT_PATH
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
                   key: report_path
             - name: LOG_PATH
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-{{ .Chart.Name }}-conf
+                  name: {{ .Release.Name }}-{{ .Chart.Name }}-config-map
                   key: log_path
           resources: {{ toYaml .Values.resources | nindent 12 }} 
           ports:

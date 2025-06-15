@@ -4,14 +4,7 @@ kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-mongodb
   namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: mongodb
-    app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app.kubernetes.io/component: {{ .Chart.Name }}
-    app.kubernetes.io/part-of: {{ .Release.Name }}
+  labels: {{- include "mongodb.labels" . | nindent 4 }}
   annotations:
     helm.sh/hook-weight: "-5"
 spec:
@@ -28,22 +21,16 @@ spec:
       containers:
       - name: mongodb
         image: {{ .Values.mongodb.image }}
+        resources: {{ toYaml .Values.mongodb.resources | nindent 12 }}
         imagePullPolicy: {{ .Values.global.imagePullPolicy }}
         envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-mongodb-config-map
         ports:
-        - containerPort: {{ .Values.mongodb.containerPort }}
-        resources:
-          requests:
-            memory: {{ .Values.mongodb.resources.requests.memory }}
-            cpu: {{ .Values.mongodb.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.mongodb.resources.limits.memory }}
-            cpu: {{ .Values.mongodb.resources.limits.cpu }}
+          - containerPort: {{ .Values.mongodb.containerPort }}
         volumeMounts:
-        - name: mongodb-data
-          mountPath: /data/db
+          - name: mongodb-data
+            mountPath: /data/db
   volumeClaimTemplates:
   - metadata:
       name: mongodb-data

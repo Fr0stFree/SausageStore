@@ -4,14 +4,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-mongodb-config-map
   namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: mongodb
-    app.kubernetes.io/instance: "{{ .Release.Name }}"
-    app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
-    app.kubernetes.io/managed-by: "{{ .Release.Service }}"
-    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app.kubernetes.io/component: {{ .Chart.Name }}
-    app.kubernetes.io/part-of: {{ .Release.Name }}
+  labels: {{- include "mongodb.labels" . | nindent 4 }}
 data:
   MONGO_INITDB_ROOT_USERNAME: {{ .Values.mongodb.env.MONGO_INITDB_ROOT_USERNAME }}
   MONGO_INITDB_ROOT_PASSWORD: {{ .Values.mongodb.env.MONGO_INITDB_ROOT_PASSWORD }}
