@@ -1,9 +1,5 @@
 global:
   imagePullPolicy: Always
-  ###vault:
-  ###  host: ip
-  ###  name: vault
-  ###  vaultToken: someToken
 
 frontend:
   replicas: 1
@@ -13,11 +9,10 @@ frontend:
   service:
     port: 80
   ingress:
-    # host: YOUR_STUDENT_HOSTNAME.students-projects.ru # Корректный домен будет указан в задании
-    host: sausage.local
+    host: front-frostfree.2sem.students-projects.ru
     path: /
     pathType: Prefix
-    tlsEnabled: false  # TODO: enable in future
+    secretName: 2sem-students-projects-wildcard-secret
   containerPort: 80
   image: frostfree/sausage-frontend:latest
   resources:
@@ -25,8 +20,8 @@ frontend:
       memory: "128Mi"
       cpu: "100m"
     limits:
-      memory: "128Mi"
-      cpu: "1"
+      memory: "256Mi"
+      cpu: "250m"
   nginxConf: nginx.conf
 
 backend:
@@ -52,21 +47,20 @@ backend:
   image: frostfree/sausage-backend:latest
   resources:
     requests:
-      memory: "256Mi"
+      memory: "128Mi"
       cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "1"
+      memory: "256Mi"
+      cpu: "250m"
   containerPort: 8080
-  # TODO: uncomment livenessProbe when backend is ready
   livenessProbe:
-    # httpGet:
-    #   path: /actuator/health
-    #   port: 8080
-    # initialDelaySeconds: 30
-    # periodSeconds: 10
-    # timeoutSeconds: 5
-    # failureThreshold: 3
+    httpGet:
+      path: /actuator/health
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
   # TODO: Опишите VPA для бэкенда
   vpa:
     enabled: false
@@ -79,7 +73,7 @@ backend-report:
       cpu: "100m"
     limits:
       memory: "256Mi"
-      cpu: "1"
+      cpu: "250m"
   image: frostfree/sausage-backend-report:latest
   service:
     port: 8081
@@ -100,6 +94,7 @@ backend-report:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
+    # TODO: Опишите HPA для бэкенда
 
 infra:
   postgres:
@@ -112,28 +107,26 @@ infra:
     replicas: 1
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "200m"
+        memory: "128Mi"
+        cpu: "100m"
       limits:
-        memory: "512Mi"
-        cpu: "1"
+        memory: "256Mi"
+        cpu: "500m"
     storage:
       size: 1Gi
-      className: standard
 
   mongodb:
     image: mongo:7.0
     replicas: 1
     storage:
       size: 1Gi
-      className: standard
     resources:
       requests:
         memory: "128Mi"
-        cpu: "50m"
+        cpu: "100m"
       limits:
         memory: "256Mi"
-        cpu: "1"
+        cpu: "500m"
     env:
       dbHost: sausage-store-mongodb-service
       dbPort: 27017
