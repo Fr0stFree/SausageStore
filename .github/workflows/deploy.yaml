@@ -88,7 +88,25 @@ jobs:
       runs-on: ubuntu-latest
       needs: add_helm_chart_to_nexus
 
-      # TODO: Добавить шаги для деплоя helm-чарта в кластер Kubernetes
       steps:
-        - name: Dummy Step
-          run: echo "This is a placeholder for the Helm chart deployment steps."
+        - name: Set up Helm
+          uses: azure/setup-helm@v1
+          with:
+            version: '3.7.0'
+            
+        - name: Add Nexus Helm Repository
+          run: |
+            helm repo add nexus ${{ secrets.NEXUS_HELM_REPO }} \
+              --username ${{ secrets.NEXUS_HELM_REPO_USER }} \
+              --password ${{ secrets.NEXUS_HELM_REPO_PASSWORD }}
+            helm repo update
+
+        - name: Развернуть helm чарт в Kubernetes
+          run: |
+            mkdir -p ~/.kube
+            echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+            chmod 600 ~/.kube/config
+            helm upgrade \
+              --install sausage-store nexus/sausage-store \
+              --namespace ${{ secrets.SAUSAGE_STORE_NAMESPACE }} \
+              --version 0.1.0
