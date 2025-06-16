@@ -93,7 +93,7 @@ jobs:
               --password ${{ secrets.NEXUS_HELM_REPO_PASSWORD }}
             helm repo update
 
-        - name: Развернуть helm чарт в Kubernetes
+        - name: Deploy Helm Chart to Kubernetes Cluster
           run: |
             mkdir -p ~/.kube
             echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
