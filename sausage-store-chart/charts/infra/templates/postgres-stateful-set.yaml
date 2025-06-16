@@ -16,6 +16,14 @@ spec:
       labels:
         app: {{ .Release.Name }}-postgres
     spec:
+      initContainers:
+        - name: postgres-cleanup
+          image: alpine:3.14
+          command: ["sh", "-c", "rm -rf /var/lib/postgresql/data/lost+found"]
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources: {{ toYaml .Values.postgres.resources | nindent 12 }}
       containers:
         - name: postgres
           image: {{ .Values.postgres.image }}
@@ -39,4 +47,3 @@ spec:
         resources:
           requests:
             storage: {{ .Values.postgres.storage.size }}
-        storageClassName: {{ .Values.postgres.storage.className }}

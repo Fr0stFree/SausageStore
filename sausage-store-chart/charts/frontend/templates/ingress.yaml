@@ -9,11 +9,10 @@ metadata:
     {{- include "frontend.labels" . | nindent 4 }}
 spec:
   ingressClassName: "nginx"
-  {{- if .Values.ingress.tlsEnabled }}
   tls:
-    - hosts:
+    - secretName: {{ .Values.ingress.secretName }}
+      hosts:
         - {{ .Values.ingress.host }}
-  {{- end }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:

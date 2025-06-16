@@ -39,4 +39,3 @@ spec:
       resources:
         requests:
           storage: {{ .Values.mongodb.storage.size }}
-      storageClassName: {{ .Values.mongodb.storage.className }}
