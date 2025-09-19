@@ -1,3 +1,12 @@
+variables:
+  OPERATION:
+    description: "Select CI/CD-operation"
+    value: "terraform"
+    options:
+      - "terraform"
+      - "ansible"
+      - "k8s" 
+
 # Пример stages для пайплайна
 # stages:
 #   - tests
@@ -8,7 +17,6 @@
 #   - destroy
 #   - build
 #   - package
-  
   
 # Выполнение тестов checkov
 #security_scan:
