@@ -10,3 +10,5 @@ Chart.lock
 
 .terraform/
 *.tfstate
+
+authorized_key.json
