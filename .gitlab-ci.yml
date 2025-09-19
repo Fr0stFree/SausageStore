@@ -14,15 +14,15 @@ before_script:
   - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
 
 # Пример stages для пайплайна
-# stages:
-#   - tests
-  # - plan
-#   - apply
-#   - terratest
-#   - ansible_deploy
-#   - destroy
-#   - build
-#   - package
+stages:
+  - tests
+  - plan
+  - apply
+  - terratest
+  - ansible_deploy
+  - destroy
+  - build
+  - package
   
 # Выполнение тестов checkov
 #security_scan:
