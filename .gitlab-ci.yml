@@ -15,7 +15,6 @@ variables:
 before_script:
   - cd ${TF_ROOT}
   - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
-  - echo project id is ${GITLAB_PROJECT_ID}
 
 # Пример stages для пайплайна
 stages:
@@ -36,7 +35,7 @@ plan:
   stage: plan
   script:
     - echo "Running Terraform plan..."
-    - terraform init \
+    - terraform init
     - | 
       backend-config="address=${GITLAB_TERRAFORM_API_URL}" \
         -backend-config="lock_address=${GITLAB_TERRAFORM_API_URL}/lock" \
