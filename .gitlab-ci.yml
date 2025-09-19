@@ -35,7 +35,6 @@ plan:
   stage: plan
   script:
     - echo "Running Terraform plan..."
-    - terraform init
     - | 
       backend-config="address=${GITLAB_TERRAFORM_API_URL}" \
         -backend-config="lock_address=${GITLAB_TERRAFORM_API_URL}/lock" \
