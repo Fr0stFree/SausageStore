@@ -37,9 +37,6 @@ plan:
   artifacts:
     paths:
       - tfplan
-  only:
-    - main
-    - merge_requests
   rules:
     - if: '$OPERATION == "terraform"'
       when: always
