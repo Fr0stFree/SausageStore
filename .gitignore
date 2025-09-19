@@ -8,7 +8,9 @@ dist/
 *.tgz
 Chart.lock
 
+# terraform files
 .terraform/
 *.tfstate
+.terraform.lock.hcl
 
 authorized_key.json
