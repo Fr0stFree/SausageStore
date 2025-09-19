@@ -1,6 +1,10 @@
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/infra
   AUTHORIZED_KEY: ${AUTHORIZED_KEY}
+  GITLAB_USER: ${GITLAB_USER}
+  GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
+  GITLAB_PROJECT_ID: ${CI_PROJECT_ID}
+  GITLAB_TERRAFORM_STATE: "default"
   OPERATION:
     description: "Select CI/CD-operation"
     value: "terraform"
@@ -12,6 +16,7 @@ variables:
 before_script:
   - cd ${TF_ROOT}
   - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
+  - echo project id is ${GITLAB_PROJECT_ID}
 
 # Пример stages для пайплайна
 stages:
@@ -32,15 +37,19 @@ plan:
   stage: plan
   script:
     - echo "Running Terraform plan..."
-    - terraform init
-    - terraform plan -out=tfplan
-  artifacts:
-    paths:
-      - tfplan
+    - terraform init \
+    - backend-config="address=https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/${GITLAB_TERRAFORM_STATE}" \
+        -backend-config="lock_address=https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/${GITLAB_TERRAFORM_STATE}/lock" \
+        -backend-config="unlock_address=https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/${GITLAB_TERRAFORM_STATE}/lock" \
+        -backend-config="username=${GITLAB_USER}" \
+        -backend-config="password=${GITLAB_ACCESS_TOKEN}" \
+        -backend-config="lock_method=POST" \
+        -backend-config="unlock_method=DELETE" \
+        -backend-config="retry_wait_min=5"
+    - terraform plan
   rules:
-    - if: '$OPERATION == "terraform"'
-      when: always
-
+    - if: $OPERATION == "terraform"
+      when: always 
 
 # Создание инфраструктуры Terraform
 #apply:
