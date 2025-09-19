@@ -1,0 +1,42 @@
+# Пример stages для пайплайна
+# stages:
+#   - tests
+#   - plan
+#   - apply
+#   - terratest
+#   - ansible_deploy
+#   - destroy
+#   - build
+#   - package
+  
+  
+# Выполнение тестов checkov
+#security_scan:
+
+
+# Terraform plan для инфраструктуры
+#plan:
+
+
+# Создание инфраструктуры Terraform
+#apply:
+
+
+# Выполнение тестов terratest
+#terratest:
+
+
+# Деплой ansible-playbook
+#ansible-deploy:
+
+
+# Удаление инфраструктуры Terraform
+#destroy:
+
+
+# Сборка и пуш Docker-образов в DockerHub
+#build-and-push-images:
+
+
+# Упаковка и пуш Helm-чарта в Nexus
+#package-helm-chart:
