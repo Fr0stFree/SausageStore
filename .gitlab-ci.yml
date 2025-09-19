@@ -35,16 +35,7 @@ plan:
   stage: plan
   script:
     - echo "Running Terraform plan..."
-    - |
-      terraform init \
-        -backend-config="address=${GITLAB_TERRAFORM_API_URL}" \
-        -backend-config="lock_address=${GITLAB_TERRAFORM_API_URL}/lock" \
-        -backend-config="unlock_address=${GITLAB_TERRAFORM_API_URL}/lock" \
-        -backend-config="username=${GITLAB_USER}" \
-        -backend-config="password=${GITLAB_ACCESS_TOKEN}" \
-        -backend-config="lock_method=POST" \
-        -backend-config="unlock_method=DELETE" \
-        -backend-config="retry_wait_min=5"
+    - terraform init 
     - terraform plan
   rules:
     - if: $OPERATION == "terraform"
