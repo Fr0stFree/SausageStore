@@ -1,16 +1,22 @@
 variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/infra
+  AUTHORIZED_KEY: ${AUTHORIZED_KEY}
   OPERATION:
     description: "Select CI/CD-operation"
     value: "terraform"
     options:
       - "terraform"
       - "ansible"
-      - "k8s" 
+      - "k8s"
+  
+before_script:
+  - cd ${TF_ROOT}
+  - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
 
 # Пример stages для пайплайна
 # stages:
 #   - tests
-#   - plan
+  # - plan
 #   - apply
 #   - terratest
 #   - ansible_deploy
@@ -22,8 +28,21 @@ variables:
 #security_scan:
 
 
-# Terraform plan для инфраструктуры
-#plan:
+plan:
+  stage: plan
+  script:
+    - echo "Running Terraform plan..."
+    - terraform init
+    - terraform plan -out=tfplan
+  artifacts:
+    paths:
+      - tfplan
+  only:
+    - main
+    - merge_requests
+  rules:
+    - if: '$OPERATION == "terraform"'
+      when: always
 
 
 # Создание инфраструктуры Terraform
