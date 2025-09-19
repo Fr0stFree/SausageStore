@@ -3,8 +3,7 @@ variables:
   AUTHORIZED_KEY: ${AUTHORIZED_KEY}
   GITLAB_USER: ${GITLAB_USER}
   GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
-  GITLAB_PROJECT_ID: ${CI_PROJECT_ID}
-  GITLAB_TERRAFORM_STATE: "default"
+  GITLAB_TERRAFORM_API_URL: "https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${CI_PROJECT_ID}/terraform/state/default"
   OPERATION:
     description: "Select CI/CD-operation"
     value: "terraform"
@@ -38,9 +37,10 @@ plan:
   script:
     - echo "Running Terraform plan..."
     - terraform init \
-    - backend-config="address=https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/${GITLAB_TERRAFORM_STATE}" \
-        -backend-config="lock_address=https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/${GITLAB_TERRAFORM_STATE}/lock" \
-        -backend-config="unlock_address=https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${GITLAB_PROJECT_ID}/terraform/state/${GITLAB_TERRAFORM_STATE}/lock" \
+    - | 
+      backend-config="address=${GITLAB_TERRAFORM_API_URL}" \
+        -backend-config="lock_address=${GITLAB_TERRAFORM_API_URL}/lock" \
+        -backend-config="unlock_address=${GITLAB_TERRAFORM_API_URL}/lock" \
         -backend-config="username=${GITLAB_USER}" \
         -backend-config="password=${GITLAB_ACCESS_TOKEN}" \
         -backend-config="lock_method=POST" \
