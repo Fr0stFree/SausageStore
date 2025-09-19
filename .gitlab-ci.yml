@@ -1,9 +1,6 @@
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/infra
   AUTHORIZED_KEY: ${AUTHORIZED_KEY}
-  GITLAB_USER: ${GITLAB_USER}
-  GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
-  GITLAB_TERRAFORM_API_URL: "https://cloud-services-engineer.gitlab.yandexcloud.net/api/v4/projects/${CI_PROJECT_ID}/terraform/state/default"
   OPERATION:
     description: "Select CI/CD-operation"
     value: "terraform"
@@ -16,7 +13,6 @@ before_script:
   - cd ${TF_ROOT}
   - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
 
-# Пример stages для пайплайна
 stages:
   - tests
   - plan
@@ -26,10 +22,6 @@ stages:
   - destroy
   - build
   - package
-  
-# Выполнение тестов checkov
-#security_scan:
-
 
 plan:
   stage: plan
@@ -41,9 +33,27 @@ plan:
     - if: $OPERATION == "terraform"
       when: always 
 
-# Создание инфраструктуры Terraform
-#apply:
+apply:
+  stage: apply
+  script:
+    - echo "Applying Terraform..."
+    - terraform init
+    - terraform apply -auto-approve
+  rules:
+    - if: $OPERATION == "terraform"
+      when: manual
 
+destroy:
+  stage: destroy
+  script:
+    - echo "Destroying Terraform infrastructure..."
+    - terraform destroy -auto-approve
+  rules:
+    - if: $OPERATION == "terraform"
+      when: manual
+
+# Выполнение тестов checkov
+#security_scan:
 
 # Выполнение тестов terratest
 #terratest:
@@ -52,14 +62,8 @@ plan:
 # Деплой ansible-playbook
 #ansible-deploy:
 
-
-# Удаление инфраструктуры Terraform
-#destroy:
-
-
 # Сборка и пуш Docker-образов в DockerHub
 #build-and-push-images:
-
 
 # Упаковка и пуш Helm-чарта в Nexus
 #package-helm-chart:
