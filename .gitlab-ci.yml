@@ -1,10 +1,4 @@
 variables:
-  AUTHORIZED_KEY: ${AUTHORIZED_KEY}
-  TF_ROOT: ${CI_PROJECT_DIR}/infra
-  TF_IN_AUTOMATION: "true"
-  TF_VAR_service_account_key_file: ${TF_ROOT}/authorized_key.json
-  TF_VAR_zone: ${TF_VAR_zone}
-  TF_VAR_cloud_id: ${TF_VAR_cloud_id}
   OPERATION:
     description: "Select CI/CD-operation"
     value: "terraform"
@@ -12,6 +6,20 @@ variables:
       - "terraform"
       - "ansible"
       - "k8s"
+  AUTHORIZED_KEY:
+    description: "Base64-encoded Yandex Cloud service account key file in JSON format. Must be set in CI/CD variables"
+    value: ${AUTHORIZED_KEY}
+  TF_ROOT: ${CI_PROJECT_DIR}/infra
+  TF_IN_AUTOMATION: "true"
+  TF_VAR_service_account_key_file:
+    description: "Path to the yandex cloud service account key file. Must be set in CI/CD variables"
+    value: ${TF_ROOT}/authorized_key.json
+  TF_VAR_zone:
+    value: ${TF_VAR_zone}
+    description: "Yandex Cloud zone. Must be set in CI/CD variables"
+  TF_VAR_cloud_id:
+    description: "Yandex Cloud ID. Must be set in CI/CD variables"
+    value: ${TF_VAR_cloud_id}
 
 stages:
   - tests
@@ -26,7 +34,7 @@ stages:
 default:
   before_script:
     - cd ${TF_ROOT}
-    - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
+    - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
 
 terraform-plan-job:
   stage: plan
