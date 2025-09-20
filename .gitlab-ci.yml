@@ -76,7 +76,7 @@ security-scan-job:
       when: always
   allow_failure: false
 
-terratest:
+terratest-job:
   stage: terratest
   script:
     - cd test
@@ -84,10 +84,10 @@ terratest:
     - go mod tidy
     - go test -v
   needs:
-    - apply
+    - terraform-apply-job
   dependencies:
-    - apply
-  allow_failure: false 
+    - terraform-apply-job
+  allow_failure: false
 
 # Деплой ansible-playbook
 #ansible-deploy:
