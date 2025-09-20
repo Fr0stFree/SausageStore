@@ -66,11 +66,28 @@ terraform-destroy-job:
       when: manual
 
 # Выполнение тестов checkov
-#security_scan:
+security-scan-job:
+  stage: tests
+  image: bridgecrew/checkov:latest
+  script:
+    - checkov -d . --compact --quiet
+  rules:
+    - if: $OPERATION == "terraform"
+      when: always
+  allow_failure: false
 
-# Выполнение тестов terratest
-#terratest:
-
+terratest:
+  stage: terratest
+  script:
+    - cd test
+    - go mod init terratest
+    - go mod tidy
+    - go test -v
+  needs:
+    - apply
+  dependencies:
+    - apply
+  allow_failure: false 
 
 # Деплой ansible-playbook
 #ansible-deploy:

@@ -1,6 +1,7 @@
-.env
-
+.vscode/
 .DS_Store
+
+.env
 
 node_modules/
 dist/
@@ -14,3 +15,6 @@ Chart.lock
 .terraform.lock.hcl
 
 authorized_key.json
+
+go.mod
+go.sum
