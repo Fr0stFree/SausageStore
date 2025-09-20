@@ -3,6 +3,10 @@ resource "yandex_compute_instance" "vm-prod" {
   description = "VM for production"
   zone        = var.zone
   platform_id = "standard-v3"
+  labels = {
+    environment = "prod"
+    project     = "sausage-store"
+  }
 
   resources {
     cores         = 2

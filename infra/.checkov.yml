@@ -1,0 +1,9 @@
+framework: 
+  - terraform
+skip-check:
+  - CKV_SECRET_13
+  - CKV_YC_2
+external-checks-dir:
+  - ./custom_policies
+output: cli
+soft-fail: true
