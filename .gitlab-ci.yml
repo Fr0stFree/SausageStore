@@ -1,6 +1,10 @@
 variables:
-  TF_ROOT: ${CI_PROJECT_DIR}/infra
   AUTHORIZED_KEY: ${AUTHORIZED_KEY}
+  TF_ROOT: ${CI_PROJECT_DIR}/infra
+  TF_IN_AUTOMATION: "true"
+  TF_VAR_service_account_key_file: ${TF_ROOT}/authorized_key.json
+  TF_VAR_zone: ${TF_VAR_zone}
+  TF_VAR_cloud_id: ${TF_VAR_cloud_id}
   OPERATION:
     description: "Select CI/CD-operation"
     value: "terraform"
@@ -8,10 +12,6 @@ variables:
       - "terraform"
       - "ansible"
       - "k8s"
-  
-before_script:
-  - cd ${TF_ROOT}
-  - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
 
 stages:
   - tests
@@ -23,7 +23,12 @@ stages:
   - build
   - package
 
-plan:
+default:
+  before_script:
+    - cd ${TF_ROOT}
+    - echo ${AUTHORIZED_KEY} | base64 -d > ./authorized_key.json
+
+terraform-plan-job:
   stage: plan
   script:
     - echo "Running Terraform plan..."
@@ -33,7 +38,7 @@ plan:
     - if: $OPERATION == "terraform"
       when: always 
 
-apply:
+terraform-apply-job:
   stage: apply
   script:
     - echo "Applying Terraform..."
@@ -43,7 +48,7 @@ apply:
     - if: $OPERATION == "terraform"
       when: manual
 
-destroy:
+terraform-destroy-job:
   stage: destroy
   script:
     - echo "Destroying Terraform infrastructure..."
