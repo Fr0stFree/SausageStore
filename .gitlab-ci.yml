@@ -60,6 +60,7 @@ terraform-destroy-job:
   stage: destroy
   script:
     - echo "Destroying Terraform infrastructure..."
+    - terraform init
     - terraform destroy -auto-approve
   rules:
     - if: $OPERATION == "terraform"
