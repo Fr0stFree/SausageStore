@@ -6,23 +6,8 @@ variables:
       - "terraform"
       - "ansible"
       - "k8s"
-  B64_SSH_PRIVATE_KEY:
-    description: "Base64-encoded SSH private key for accessing VMs. Must be set in CI/CD variables"
-    value: ${SSH_PRIVATE_KEY}
-  B64_AUTHORIZED_KEY:
-    description: "Base64-encoded Yandex Cloud service account key file in JSON format. Must be set in CI/CD variables"
-    value: ${AUTHORIZED_KEY}
   TF_ROOT: ${CI_PROJECT_DIR}/infra
   TF_IN_AUTOMATION: "true"
-  TF_VAR_service_account_key_file:
-    description: "Path to the yandex cloud service account key file. Must be set in CI/CD variables"
-    value: ${TF_ROOT}/authorized_key.json
-  TF_VAR_zone:
-    value: ${TF_VAR_zone}
-    description: "Yandex Cloud zone. Must be set in CI/CD variables"
-  TF_VAR_cloud_id:
-    description: "Yandex Cloud ID. Must be set in CI/CD variables"
-    value: ${TF_VAR_cloud_id}
 
 stages:
   - tests
@@ -37,7 +22,7 @@ stages:
 default:
   before_script:
     - cd ${TF_ROOT}
-    - echo ${B64_AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
+    - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
 
 security-scan-job:
   stage: tests
@@ -87,7 +72,8 @@ terratest-job:
     - go mod tidy
     - go test -v
   needs:
-    - terraform-apply-job
+    - job: terraform-apply-job
+      optional: true
   dependencies:
     - terraform-apply-job
   allow_failure: false
@@ -97,7 +83,7 @@ ansible-deploy-job:
   image: williamyeh/ansible:ubuntu18.04
   before_script:
     - mkdir -p ~/.ssh
-    - echo ${B64_SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
+    - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - pushd ${CI_PROJECT_DIR}/ansible
   script:
