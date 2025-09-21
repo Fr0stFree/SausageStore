@@ -11,45 +11,8 @@ users:
       - ${authorized_key}
 
 packages:
-  - htop
   - curl
   - git
   - vim
-
-write_files:
-  - path: "/usr/local/etc/docker-start.sh"
-    permissions: "755"
-    content: |
-      #!/bin/bash
-      set -e
-
-      echo "Installing Docker"
-      sudo apt update -y && sudo apt install -y docker.io curl
-
-      echo "Grant user access to Docker"
-      sudo usermod -aG docker ${user}
-
-      echo "Installing Docker Compose"
-      curl -SL "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-$(uname -m)" -o /tmp/docker-compose
-      sudo mv /tmp/docker-compose /usr/local/bin/docker-compose
-      sudo chmod +x /usr/local/bin/docker-compose
-
-      echo "Docker Compose version:"
-      docker-compose version
-
-    defer: true
-  - path: "/usr/local/etc/docker-main.sh"
-    permissions: "755"
-    content: |
-      #!/bin/bash
-
-      # Docker run container
-      docker pull hello-world:latest
-      docker run hello-world
-
-    defer: true
-
-runcmd:
-  - [su, "${user}", -c, "/usr/local/etc/docker-start.sh"]
-  - [su, "${user}", -c, "/usr/local/etc/docker-main.sh"]
+  - python3
 

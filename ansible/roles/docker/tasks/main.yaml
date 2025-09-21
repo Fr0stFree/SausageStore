@@ -1,4 +1,8 @@
 ---
+- name: Set username variable
+  ansible.builtin.set_fact:
+    username: "{{ lookup('env', 'USER') }}"
+
 - name: Install required dependencies
   apt:
     name: "{{ item }}"
