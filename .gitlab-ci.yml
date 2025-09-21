@@ -1,11 +1,11 @@
 variables:
   OPERATION:
     description: "Select CI/CD-operation"
-    value: "terraform"
+    value: terraform
     options:
-      - "terraform"
-      - "ansible"
-      - "k8s"
+      - terraform
+      - ansible
+      - k8s
   TF_ROOT: ${CI_PROJECT_DIR}/infra
   TF_IN_AUTOMATION: "true"
 
@@ -75,8 +75,8 @@ terratest-job:
   needs:
     - job: terraform-apply-job
       optional: true
-  dependencies:
-    - terraform-apply-job
+  rules:
+    - when: manual
   allow_failure: false
 
 ansible-deploy-job:
