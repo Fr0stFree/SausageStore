@@ -22,7 +22,8 @@ stages:
 default:
   before_script:
     - cd ${TF_ROOT}
-    - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
+    - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_ROOT}/authorized_key.json
+    - export TF_VAR_service_account_key_file=${TF_ROOT}/authorized_key.json
 
 security-scan-job:
   stage: tests
