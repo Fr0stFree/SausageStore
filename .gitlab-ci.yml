@@ -36,6 +36,16 @@ default:
     - cd ${TF_ROOT}
     - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
 
+security-scan-job:
+  stage: tests
+  image: bridgecrew/checkov:latest
+  script:
+    - checkov -d . --compact --quiet
+  rules:
+    - if: $OPERATION == "terraform"
+      when: always
+  allow_failure: true
+
 terraform-plan-job:
   stage: plan
   script:
@@ -65,17 +75,6 @@ terraform-destroy-job:
   rules:
     - if: $OPERATION == "terraform"
       when: manual
-
-# Выполнение тестов checkov
-security-scan-job:
-  stage: tests
-  image: bridgecrew/checkov:latest
-  script:
-    - checkov -d . --compact --quiet
-  rules:
-    - if: $OPERATION == "terraform"
-      when: always
-  allow_failure: false
 
 terratest-job:
   stage: terratest

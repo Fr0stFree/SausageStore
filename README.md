@@ -15,19 +15,21 @@ The app allows users to add items to a cart, place orders, and generate activity
 ## 🛠️ Project Structure
 
 ```plaintext
-├── infra                       # Описание инфраструктуры и тестов
+├── ansible                     # Infrastructure automation (Ansible)
+│   ├── ansible.cfg             # Ansible configuration file
+│   ├── inventory               
+│   ├── roles
+│   └── vault-playbook.yml      # Playbook for installing and configuring vault
+├── infra                       # Infrastructure as Code (Terraform)
 │   ├── provider.tf
 │   ├── terraform.tfvars
 │   ├── variables.tf
 │   ├── vm-dev.tf
 │   ├── vm-prod.tf
 │   ├── vpc.tf
-│   ├── custom_policies
-│   │       └── ensure_yandex_instance_has_labels.yml
-│   ├── test
-│   │       ├── vm_avalability_test.go
-│   │       └── vm_prod_sg_check_test.go
-│   └── .checkov.yml
+│   ├── custom_policies         # Custom policies for checkov scans
+│   ├── test                    # Terraform tests
+│   └── .checkov.yml            # Checkov configuration
 ├── backend
 │   ├── checkstyle.xml
 │   ├── Dockerfile
