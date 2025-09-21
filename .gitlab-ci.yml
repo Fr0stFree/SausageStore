@@ -38,7 +38,6 @@ security-scan-job:
 terraform-plan-job:
   stage: plan
   script:
-    - echo "Running Terraform plan..."
     - terraform init 
     - terraform plan
   rules:
@@ -48,7 +47,6 @@ terraform-plan-job:
 terraform-apply-job:
   stage: apply
   script:
-    - echo "Applying Terraform..."
     - terraform init
     - terraform apply -auto-approve
   rules:
@@ -58,7 +56,6 @@ terraform-apply-job:
 terraform-destroy-job:
   stage: destroy
   script:
-    - echo "Destroying Terraform infrastructure..."
     - terraform init
     - terraform destroy -auto-approve
   rules:
@@ -87,14 +84,12 @@ ansible-deploy-job:
     - mkdir -p ~/.ssh
     - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - pushd ${CI_PROJECT_DIR}/ansible
   script:
+    - terraform init
+    - cd ${CI_PROJECT_DIR}/ansible
     - ansible-playbook vault-playbook.yaml
-  after_script:
-    - popd
   rules:
     - if: $OPERATION == "ansible"
-      when: manual
 
 
 # Сборка и пуш Docker-образов в DockerHub
