@@ -85,6 +85,7 @@ ansible-deploy-job:
     - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - terraform init
+    - terraform output -json
     - cd ${CI_PROJECT_DIR}/ansible
     - ansible-playbook vault-playbook.yaml
   rules:
