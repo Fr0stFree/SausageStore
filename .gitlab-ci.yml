@@ -80,11 +80,10 @@ terratest-job:
 ansible-deploy-job:
   stage: ansible_deploy
   image: williamyeh/ansible:ubuntu18.04
-  before_script:
+  script:
     - mkdir -p ~/.ssh
     - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-  script:
     - terraform init
     - cd ${CI_PROJECT_DIR}/ansible
     - ansible-playbook vault-playbook.yaml
