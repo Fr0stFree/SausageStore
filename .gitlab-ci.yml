@@ -6,7 +6,10 @@ variables:
       - "terraform"
       - "ansible"
       - "k8s"
-  AUTHORIZED_KEY:
+  B64_SSH_PRIVATE_KEY:
+    description: "Base64-encoded SSH private key for accessing VMs. Must be set in CI/CD variables"
+    value: ${SSH_PRIVATE_KEY}
+  B64_AUTHORIZED_KEY:
     description: "Base64-encoded Yandex Cloud service account key file in JSON format. Must be set in CI/CD variables"
     value: ${AUTHORIZED_KEY}
   TF_ROOT: ${CI_PROJECT_DIR}/infra
@@ -34,7 +37,7 @@ stages:
 default:
   before_script:
     - cd ${TF_ROOT}
-    - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
+    - echo ${B64_AUTHORIZED_KEY} | base64 -d > ${TF_VAR_service_account_key_file}
 
 security-scan-job:
   stage: tests
@@ -89,8 +92,22 @@ terratest-job:
     - terraform-apply-job
   allow_failure: false
 
-# Деплой ansible-playbook
-#ansible-deploy:
+ansible-deploy-job:
+  stage: ansible_deploy
+  image: williamyeh/ansible:ubuntu18.04
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo ${B64_SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - pushd ${CI_PROJECT_DIR}/ansible
+  script:
+    - ansible-playbook vault-playbook.yaml
+  after_script:
+    - popd
+  rules:
+    - if: $OPERATION == "ansible"
+      when: manual
+
 
 # Сборка и пуш Docker-образов в DockerHub
 #build-and-push-images:
