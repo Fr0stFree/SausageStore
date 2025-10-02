@@ -9,6 +9,7 @@ class InventoryArgs(NamedTuple):
 
 class AnsibleArgumentParser:
     """Class to parse command line arguments for Ansible dynamic inventory script."""
+
     def __init__(self) -> None:
         self.parser = ArgumentParser(
             description="Generate Ansible dynamic inventory from Terraform output"

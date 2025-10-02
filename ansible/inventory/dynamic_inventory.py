@@ -13,12 +13,11 @@ TEMPLATES_DIR = ANSIBLE_DIR / "inventory" / "templates"
 ANSIBLE_INVENTORY_TEMPLATE_FILE = TEMPLATES_DIR / "inventory.json.j2"
 VM_USER = "ubuntu"
 
+
 def make_inventory_info(tf_output: dict) -> InventoryInfo:
     return InventoryInfo(
         dev=EnvInfo(vm=VMInfo(ip=tf_output["vm_dev_address"]["value"], user=VM_USER)),
-        prod=EnvInfo(
-            vm=VMInfo(ip=tf_output["vm_prod_address"]["value"], user=VM_USER)
-        ),
+        prod=EnvInfo(vm=VMInfo(ip=tf_output["vm_prod_address"]["value"], user=VM_USER)),
     )
 
 
