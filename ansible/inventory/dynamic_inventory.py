@@ -11,7 +11,6 @@ ANSIBLE_DIR = BASE_DIR / "ansible"
 TERRAFORM_DIR = BASE_DIR / "infra"
 TEMPLATES_DIR = ANSIBLE_DIR / "inventory" / "templates"
 ANSIBLE_INVENTORY_TEMPLATE_FILE = TEMPLATES_DIR / "inventory.json.j2"
-VM_USER = "ubuntu"
 
 
 def make_inventory_info(tf_output: dict) -> InventoryInfo:
