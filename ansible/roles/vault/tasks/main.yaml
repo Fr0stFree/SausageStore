@@ -1,0 +1,46 @@
+---
+- name: Pull Vault image
+  ansible.builtin.docker_image:
+    name: vault
+    tag: 1.13.3
+    source: pull
+
+- name: Create Vault container
+  ansible.builtin.docker_container:
+    name: vault
+    image: vault:1.13.3
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "8200:8200"
+    env:
+      VAULT_DEV_ROOT_TOKEN_ID: "{{ vault_root_token }}"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    command: "server -dev"
+    volumes:
+      - /etc/vault:/vault/config
+
+- name: Add spring.datasource secrets to Vault
+  ansible.builtin.uri:
+    url: "http://localhost:8200/v1/secret/data/spring-datasource"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body_format: json
+    body:
+      data:
+        spring.datasource.username: "{{ spring_datasource_username }}"
+        spring.datasource.password: "{{ spring_datasource_password }}"
+    status_code: 200
+
+- name: Add spring.data.mongodb.uri secret to Vault
+  ansible.builtin.uri:
+    url: "http://localhost:8200/v1/secret/data/spring-mongodb"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body_format: json
+    body:
+      data:
+        spring.data.mongodb.uri: "{{ spring_data_mongodb_uri }}"
+    status_code: 200

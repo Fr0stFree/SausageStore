@@ -20,12 +20,12 @@
     state: present
 
 - name: Add Docker repository to apt
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
 
 - name: Install Docker
-  apt:
+  ansible.builtin.apt:
     name: "{{ item }}"
     state: latest
   loop:
@@ -34,7 +34,7 @@
     - containerd.io
 
 - name: Check docker service is active
-  service:
+  ansible.builtin.service:
     name: docker
     state: started
     enabled: yes
@@ -45,13 +45,13 @@
     state: present
 
 - name: Add user to docker group
-  user:
+  ansible.builtin.user:
     name: "{{ username }}"
     groups: docker
     append: yes
 
 - name: Install docker-compose
-  get_url:
+  ansible.builtin.get_url:
     url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
     dest: /usr/local/bin/docker-compose
     mode: "0755"

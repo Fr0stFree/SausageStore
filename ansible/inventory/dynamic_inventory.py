@@ -16,8 +16,18 @@ VM_USER = "ubuntu"
 
 def make_inventory_info(tf_output: dict) -> InventoryInfo:
     return InventoryInfo(
-        dev=EnvInfo(vm=VMInfo(ip=tf_output["vm_dev_address"]["value"], user=VM_USER)),
-        prod=EnvInfo(vm=VMInfo(ip=tf_output["vm_prod_address"]["value"], user=VM_USER)),
+        dev=EnvInfo(
+            vm=VMInfo(
+                ip=tf_output["vm_dev_address"]["value"],
+                user=tf_output["vm_dev_user"]["value"],
+            )
+        ),
+        prod=EnvInfo(
+            vm=VMInfo(
+                ip=tf_output["vm_prod_address"]["value"],
+                user=tf_output["vm_prod_user"]["value"],
+            )
+        ),
     )
 
 
