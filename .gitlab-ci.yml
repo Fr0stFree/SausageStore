@@ -28,12 +28,11 @@ stages:
 .prepare-docker-push-script: &prepare-docker-push
   - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
-
 ### JOBS ###
 scan-terraform-files:
   stage: tests
   image: bridgecrew/checkov:latest
-  # before_script: *prepare-terraform
+  before_script: *prepare-terraform
   script:
     - checkov -d . --compact --quiet
   rules:
@@ -45,11 +44,11 @@ plan-terraform-changes:
   stage: plan
   before_script: *prepare-terraform
   script:
-    - terraform init 
+    - terraform init
     - terraform plan
   rules:
     - if: $OPERATION == "terraform"
-      when: always 
+      when: always
 
 apply-terraform-changes:
   stage: apply
