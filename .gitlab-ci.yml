@@ -19,15 +19,15 @@ stages:
   - build
   - package
 
-default:
-  before_script:
-    - cd ${TF_ROOT}
-    - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_ROOT}/authorized_key.json
-    - export TF_VAR_service_account_key_file=${TF_ROOT}/authorized_key.json
+.teraform-before-script: &terraform-before-script
+  - cd ${TF_ROOT}
+  - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_ROOT}/authorized_key.json
+  - export TF_VAR_service_account_key_file=${TF_ROOT}/authorized_key.json
 
 scan-terraform-files:
   stage: tests
   image: bridgecrew/checkov:latest
+  before_script: *terraform-before-script
   script:
     - checkov -d . --compact --quiet
   rules:
@@ -37,6 +37,7 @@ scan-terraform-files:
 
 plan-terraform-changes:
   stage: plan
+  before_script: *terraform-before-script
   script:
     - terraform init 
     - terraform plan
@@ -46,6 +47,7 @@ plan-terraform-changes:
 
 apply-terraform-changes:
   stage: apply
+  before_script: *terraform-before-script
   script:
     - terraform init
     - terraform apply -auto-approve
@@ -55,6 +57,7 @@ apply-terraform-changes:
 
 destroy-terraform-infrastructure:
   stage: destroy
+  before_script: *terraform-before-script
   script:
     - terraform init
     - terraform destroy -auto-approve
@@ -80,12 +83,13 @@ run-terraform-tests:
 deploy-with-ansible:
   stage: ansible_deploy
   image: williamyeh/ansible:ubuntu18.04
-  script:
+  before_script:
     - mkdir -p ~/.ssh
     - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - terraform init
     - cd ${CI_PROJECT_DIR}/ansible
+  script:
+    # - terraform init
     - ansible-playbook vault-playbook.yaml
   rules:
     - if: $OPERATION == "ansible"
@@ -93,13 +97,11 @@ deploy-with-ansible:
 
 build-and-push-images:
   stage: build
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
   script:
     - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-    - docker build --build-arg VERSION=$CI_COMMIT_SHA --push -t $DOCKER_USER/sausage-backend:latest ./backend/
-    - docker build --push -t $DOCKER_USER/sausage-frontend:latest ./frontend/
-    - docker build --push -t $DOCKER_USER/sausage-backend-report:latest ./backend-report/
+    - docker build --build-arg VERSION=$CI_COMMIT_SHA --push -t $DOCKER_USER/sausage-backend:latest ${CI_PROJECT_DIR}/backend/
+    - docker build --push -t $DOCKER_USER/sausage-frontend:latest ${CI_PROJECT_DIR}/frontend/
+    - docker build --push -t $DOCKER_USER/sausage-backend-report:latest ${CI_PROJECT_DIR}/backend-report/
   rules:
     - if: $OPERATION == "k8s"
       when: always
