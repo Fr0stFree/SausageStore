@@ -19,11 +19,17 @@ stages:
   - build
   - package
 
+### SCRIPTS ###
 .prepare-terraform-script: &prepare-terraform
   - cd ${TF_ROOT}
   - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_ROOT}/authorized_key.json
   - export TF_VAR_service_account_key_file=${TF_ROOT}/authorized_key.json
 
+.prepare-docker-push-script: &prepare-docker-push
+  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+
+### JOBS ###
 scan-terraform-files:
   stage: tests
   image: bridgecrew/checkov:latest
@@ -97,13 +103,29 @@ deploy-with-ansible:
     - if: $OPERATION == "ansible"
       when: always
 
-build-and-push-images:
+build-backend:
   stage: build
+  before_script: *prepare-docker-push
   script:
-    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-    - docker build --build-arg VERSION=$CI_COMMIT_SHA --push -t $DOCKER_USER/sausage-backend:latest ${CI_PROJECT_DIR}/backend/
-    - docker build --push -t $DOCKER_USER/sausage-frontend:latest ${CI_PROJECT_DIR}/frontend/
-    - docker build --push -t $DOCKER_USER/sausage-backend-report:latest ${CI_PROJECT_DIR}/backend-report/
+    - docker build --build-arg VERSION=$CI_COMMIT_SHA --push -t ${DOCKER_USER}/sausage-backend:latest ${CI_PROJECT_DIR}/backend/
+  rules:
+    - if: $OPERATION == "k8s"
+      when: always
+
+build-frontend:
+  stage: build
+  before_script: *prepare-docker-push
+  script:
+    - docker build --push -t ${DOCKER_USER}/sausage-frontend:latest ${CI_PROJECT_DIR}/frontend/
+  rules:
+    - if: $OPERATION == "k8s"
+      when: always
+
+build-backend-report:
+  stage: build
+  before_script: *prepare-docker-push
+  script:
+    - docker build --push -t ${DOCKER_USER}/sausage-backend-report:latest ${CI_PROJECT_DIR}/backend-report/
   rules:
     - if: $OPERATION == "k8s"
       when: always
@@ -111,14 +133,17 @@ build-and-push-images:
 package-helm-chart:
   stage: package
   image:
-    name: alpine/helm:3.7.0
+    name: alpine/helm:3.12.0
     entrypoint: [""]
+  before_script:
+    - apk add curl
   script:
-    - apk add --no-cache curl
     - helm package ${CI_PROJECT_DIR}/sausage-store-chart
     - curl -u "$NEXUS_HELM_REPO_USER:$NEXUS_HELM_REPO_PASSWORD" $NEXUS_HELM_REPO --upload-file *.tgz
   needs:
-    - job: build-and-push-images
+    - job: build-backend
+    - job: build-frontend
+    - job: build-backend-report
   rules:
     - if: $OPERATION == "k8s"
       when: manual
