@@ -19,7 +19,7 @@ stages:
   - build
   - package
 
-.teraform-before-script: &terraform-before-script
+.prepare-terraform-script: &prepare-terraform
   - cd ${TF_ROOT}
   - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_ROOT}/authorized_key.json
   - export TF_VAR_service_account_key_file=${TF_ROOT}/authorized_key.json
@@ -27,7 +27,7 @@ stages:
 scan-terraform-files:
   stage: tests
   image: bridgecrew/checkov:latest
-  before_script: *terraform-before-script
+  before_script: *prepare-terraform
   script:
     - checkov -d . --compact --quiet
   rules:
@@ -37,7 +37,7 @@ scan-terraform-files:
 
 plan-terraform-changes:
   stage: plan
-  before_script: *terraform-before-script
+  before_script: *prepare-terraform
   script:
     - terraform init 
     - terraform plan
@@ -47,17 +47,19 @@ plan-terraform-changes:
 
 apply-terraform-changes:
   stage: apply
-  before_script: *terraform-before-script
+  before_script: *prepare-terraform
   script:
     - terraform init
     - terraform apply -auto-approve
   rules:
     - if: $OPERATION == "terraform"
       when: manual
+  needs:
+    - job: plan-terraform-changes
 
 destroy-terraform-infrastructure:
   stage: destroy
-  before_script: *terraform-before-script
+  before_script: *prepare-terraform
   script:
     - terraform init
     - terraform destroy -auto-approve
@@ -106,5 +108,19 @@ build-and-push-images:
     - if: $OPERATION == "k8s"
       when: always
 
-# Упаковка и пуш Helm-чарта в Nexus
-#package-helm-chart:
+package-helm-chart:
+  stage: package
+  image:
+    name: alpine/helm:3.7.0
+    entrypoint: [""]
+  script:
+    - apk add --no-cache curl
+    - helm package ${CI_PROJECT_DIR}/sausage-store-chart
+    - curl -u "$NEXUS_HELM_REPO_USER:$NEXUS_HELM_REPO_PASSWORD" $NEXUS_HELM_REPO --upload-file *.tgz
+  needs:
+    - job: build-and-push-images
+  rules:
+    - if: $OPERATION == "k8s"
+      when: manual
+  tags:
+    - docker
