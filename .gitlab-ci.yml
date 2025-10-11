@@ -98,7 +98,7 @@ deploy-with-ansible:
     - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - cd ${CI_PROJECT_DIR}/ansible
-    - ansible-playbook vault-playbook.yaml
+    - ansible-playbook vault-playbook.yaml --extra-vars "vault_root_token=${VAULT_ROOT_TOKEN}"
   rules:
     - if: $OPERATION == "ansible"
       when: always

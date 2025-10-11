@@ -29,8 +29,8 @@
     body_format: json
     body:
       data:
-        spring.datasource.username: "{{ spring_datasource_username }}"
-        spring.datasource.password: "{{ spring_datasource_password }}"
+        spring.datasource.username: store
+        spring.datasource.password: storepassword
     status_code: 200
 
 - name: Add spring.data.mongodb.uri secret to Vault
@@ -42,5 +42,5 @@
     body_format: json
     body:
       data:
-        spring.data.mongodb.uri: "{{ spring_data_mongodb_uri }}"
+        spring.data.mongodb.uri: mongodb://store:storepassword@sausage-store-mongodb-service:27017/sausage-store
     status_code: 200

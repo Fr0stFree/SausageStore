@@ -2,12 +2,6 @@
 - hosts:
     - vm-dev
     - vm-prod
-  vars:
-    # TODO: Change in production!
-    vault_root_token: "root"
-    spring_datasource_username: "admin"
-    spring_datasource_password: "password"
-    spring_data_mongodb_uri: "mongodb://admin:password@localhost:27017/mydb"
   roles:
     - docker
     - vault
