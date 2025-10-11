@@ -1,6 +1,6 @@
 variables:
   OPERATION:
-    description: "Select CI/CD-operation"
+    description: Select CI/CD-operation to perform
     value: terraform
     options:
       - terraform
@@ -25,7 +25,7 @@ default:
     - echo ${AUTHORIZED_KEY} | base64 -d > ${TF_ROOT}/authorized_key.json
     - export TF_VAR_service_account_key_file=${TF_ROOT}/authorized_key.json
 
-security-scan-job:
+scan-terraform-files:
   stage: tests
   image: bridgecrew/checkov:latest
   script:
@@ -35,7 +35,7 @@ security-scan-job:
       when: always
   allow_failure: true
 
-terraform-plan-job:
+plan-terraform-changes:
   stage: plan
   script:
     - terraform init 
@@ -44,7 +44,7 @@ terraform-plan-job:
     - if: $OPERATION == "terraform"
       when: always 
 
-terraform-apply-job:
+apply-terraform-changes:
   stage: apply
   script:
     - terraform init
@@ -53,7 +53,7 @@ terraform-apply-job:
     - if: $OPERATION == "terraform"
       when: manual
 
-terraform-destroy-job:
+destroy-terraform-infrastructure:
   stage: destroy
   script:
     - terraform init
@@ -62,7 +62,7 @@ terraform-destroy-job:
     - if: $OPERATION == "terraform"
       when: manual
 
-terratest-job:
+run-terraform-tests:
   stage: terratest
   script:
     - cd test
@@ -70,14 +70,14 @@ terratest-job:
     - go mod tidy
     - go test -v
   needs:
-    - job: terraform-apply-job
+    - job: apply-terraform-changes
       optional: true
   rules:
     - when: manual
       if: $OPERATION == "terraform"
   allow_failure: false
 
-ansible-deploy-job:
+deploy-with-ansible:
   stage: ansible_deploy
   image: williamyeh/ansible:ubuntu18.04
   script:
@@ -91,8 +91,18 @@ ansible-deploy-job:
     - if: $OPERATION == "ansible"
       when: always
 
-# Сборка и пуш Docker-образов в DockerHub
-#build-and-push-images:
+build-and-push-images:
+  stage: build
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - docker build --build-arg VERSION=$CI_COMMIT_SHA --push -t $DOCKER_USER/sausage-backend:latest ./backend/
+    - docker build --push -t $DOCKER_USER/sausage-frontend:latest ./frontend/
+    - docker build --push -t $DOCKER_USER/sausage-backend-report:latest ./backend-report/
+  rules:
+    - if: $OPERATION == "k8s"
+      when: always
 
 # Упаковка и пуш Helm-чарта в Nexus
 #package-helm-chart:
