@@ -33,7 +33,7 @@ stages:
 scan-terraform-files:
   stage: tests
   image: bridgecrew/checkov:latest
-  before_script: *prepare-terraform
+  # before_script: *prepare-terraform
   script:
     - checkov -d . --compact --quiet
   rules:
@@ -91,13 +91,13 @@ run-terraform-tests:
 deploy-with-ansible:
   stage: ansible_deploy
   image: williamyeh/ansible:ubuntu18.04
-  before_script:
+  before_script: *prepare-terraform
+  script:
+    - terraform init
     - mkdir -p ~/.ssh
     - echo ${SSH_PRIVATE_KEY} | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - cd ${CI_PROJECT_DIR}/ansible
-  script:
-    # - terraform init
     - ansible-playbook vault-playbook.yaml
   rules:
     - if: $OPERATION == "ansible"
