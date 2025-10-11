@@ -74,8 +74,9 @@ destroy-terraform-infrastructure:
 
 run-terraform-tests:
   stage: terratest
+  before_script:
+    - cd ${CI_PROJECT_DIR}/infra/test
   script:
-    - cd test
     - go mod init terratest
     - go mod tidy
     - go test -v
