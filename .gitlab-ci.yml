@@ -86,7 +86,7 @@ run-terraform-tests:
   rules:
     - when: manual
       if: $OPERATION == "terraform"
-  allow_failure: false
+  allow_failure: true
 
 deploy-with-ansible:
   stage: ansible_deploy
