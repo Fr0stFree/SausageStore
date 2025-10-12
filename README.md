@@ -8,6 +8,7 @@ This is the final project for the third semester of the ITMO program. The goal w
 - [ArgoCD Application](https://argocd.infra.students-projects.ru/applications/argocd/sausage-store-frostfree)
 - [Nexus Helm Repository](https://nexus.cloud-services-engineer.education-services.ru/#browse/browse:frostfree-sausage-store)
 - [Project URL](https://front-frostfree.2sem.students-projects.ru/)
+- [Vault URL](http://62.84.126.185:8200/)
 
 ## 🧩 Architecture
 
